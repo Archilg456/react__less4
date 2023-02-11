@@ -1,64 +1,93 @@
-import React, { useState, useEffect } from 'react';
+import React, { Component } from 'react';
 import './App.css';
 
 
 
-let generateUsers = () => {
-
-return [
-
+let generateUsers = () => [
   {id:1, name: "elle", age: 44},
   {id:2, name: "joel", age: 22},
   {id:3, name: "fedra", age:10 },
   {id:4, name: "tommy", age:12 },
   {id:5, name: "tess", age:25 },
   {id:6, name: "lee", age:48 },
-  {id:7, name: "abel", age: 33},
-  {id:8, name: "anna", age:54 },
-  {id:9, name: "sam", age: 39},
-  {id:10, name: "marlen", age: 59},
-  {id:11, name: "kim", age: 60},
-  {id:12, name: "bill", age:29 },
 ];
+
+ 
+
+
+
+export default class App extends Component{
+
+constructor() {
+  super();
+  this.state = {showUsersList: true};
+}
+onChangedShowUsers = () => {
+  this.setState({showUsersList: !this.state.showUsersList });
 };
+render(){
 
-function App() {
-
-let [users, setUsers] = useState([]);
-
-let onRemoveUser = () => {
-  setUsers((prevUsers) => {
-    let index = Math.floor(Math.random() * prevUsers.length);
-    let newUsersArray = prevUsers.filter((_.ind ) => ind !== index );
-    return newUsersArray;
-  });
-};
-
-
-useEffect(()=>{
-setUsers(generateUsers());
-},[])
-
-useEffect(()=>{
-
-  document.title = `${users.length} Users Left `;
-
-
-},[users]);
-
+  let {showUsersList} = this.state;
   return (
-    <div className="App">
-
-      <button onClick={onRemoveUser}> Remove User </button>
-
-        {users.map(({id,age , name})=>(
-          <h1 key={id}> {name}, {age} </h1>
-        ))}
-
-
-
+    <div className='info_div'>
+    <button onClick={this.onChangedShowUsers}> Changed Show Value </button>
+    {showUsersList && <Child />}  
     </div>
   );
-};
+ }
+}
 
-export default App;
+
+class Child extends Component {
+
+  constructor() {
+    super();
+    this.state = {userList: [] };
+  }
+
+  componentDidMount(){
+    this.setState({userList: generateUsers() });
+  }
+
+  componentDidUpdate(_, prevState){
+    if (prevState.userList !== this.state.userList) {
+      document.title =  this.state.userList.length ;
+    }
+  }
+
+  componentWillUnmount(){
+    document.title = " Unmounting ";
+  }
+
+
+  onRemoveUser = () => {
+    this.setState((prevState) => {
+      let randomIndex = Math.floor(
+        Math.random() * prevState.userList.length
+      );
+      let newUsersList = prevState.userList.filter(
+        (_, ind) => ind !== randomIndex
+      );
+      return{
+          userList: newUsersList, 
+      };
+    });
+  };
+
+
+
+  render() {
+    let { userList } = this.state
+    return(
+      <div className='info_div'>
+        {userList.map((user) =>{
+          let {name, id, age} = user;
+          return <h1 key={id}> {name}, {age} </h1>
+        })}
+        <button onClick={this.onRemoveUser}>Remove Random User</button>
+      </div>
+    );
+  }
+
+
+ }
